@@ -2,7 +2,7 @@ all: MusicPlayer run
 
 
 MusicPlayer: Player.o Track.o Main.o Playlist.o
-	 g++ -o MusicPlayer Player.o Track.o Main.o Playlist.o -lwinmm
+	 g++ -o MusicPlayer Player.o Track.o Main.o Playlist.o -lwinmm -lcomdlg32
 	 
 Player.o: Player.cpp
 	g++ -c Player.cpp

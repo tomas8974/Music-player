@@ -1,8 +1,8 @@
 #include <iostream>
 #include "Player.h"
-#include "Track.h"
-#include <conio.h>
+
 using namespace std;
+
 
 int main (){
 
@@ -11,25 +11,33 @@ int main (){
 
     do {
         cout << "\nMenu:\n";
-        cout << "1. Display song list in the current folder\n";
-        cout << "2. Play a song from the current folder\n";;
-        cout << "3. Create a playlist\n";
-        cout << "4. Delete a playlist\n";
-        cout << "5. Rename a playlist\n";
-        cout << "6. Display playlists\n";
-        cout << "7. Display all tracks in the playlist\n";
-        cout << "8. Play tracks in the playlist\n";
-        cout << "9. Add song to playlist\n";
-        cout << "10. Remove song from playlist\n";
+        cout << "1. Select a song to play\n";
+        cout << "2. Display song list in the current folder\n";
+        cout << "3. Play a song from the current folder\n";;
+        cout << "4. Create a playlist\n";
+        cout << "5. Delete a playlist\n";
+        cout << "6. Rename a playlist\n";
+        cout << "7. Display playlists\n";
+        cout << "8. Display all tracks in the playlist\n";
+        cout << "9. Play tracks in the playlist\n";
+        cout << "10. Add song to playlist\n";
+        cout << "11. Remove song from playlist\n";
         cout << "0. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         switch (choice) {
             case 1: {
+                Track* song = player.selectTrack();
+                if (song != NULL){
+                    player.playTrack(*song, NULL);
+                }
+                break;
+            }
+            case 2: {
                 // Display song list in the current folder
 
-                vector<Track*> tracks = player.currentPlaylist->getTrackListFromCurrentFolder(); // gets tracks from current folder
+                vector<Track*> tracks = player.getTrackListFromCurrentFolder(); // gets tracks from current folder
                 cout << "Song list:" << endl;
                 if (tracks.size() == 0){
                     cout << "There are no songs." << endl;
@@ -42,10 +50,9 @@ int main (){
                 }
                 break;
             }
-            case 2: {
+            case 3: {
                 // Play a song from the current folder
-                vector<Track*> tracks = player.currentPlaylist->getTrackListFromCurrentFolder(); // gets tracks from current folder
-                player.currentPlaylist->setPlaylistTracks(tracks);
+                vector<Track*> tracks = player.getTrackListFromCurrentFolder(); // gets tracks from current folder
                 cout << "Choose a song to play: ";
                 int trackNumber;
                 cin >> trackNumber;
@@ -55,16 +62,16 @@ int main (){
                 else {
                     player.currentPlaylist->setTrackNumber(trackNumber);
                     player.currentPlaylist->setCurrentTrack(tracks[trackNumber]);
-                    player.playTrack(*player.currentPlaylist->getCurrentTrack(), *player.currentPlaylist);
+                    player.playTrack(*player.currentPlaylist->getCurrentTrack(), player.currentPlaylist);
 
                     while (true) {
                         if(player.nextSongQueue == true){
                             player.nextSongQueue = false; // Reset the flag
-                            player.playTrack(*player.currentPlaylist->getCurrentTrack(), *player.currentPlaylist);
+                            player.playTrack(*player.currentPlaylist->getCurrentTrack(), player.currentPlaylist);
                         }
                         else if(player.previousSongQueue == true){
                             player.previousSongQueue = false; // Reset the flag
-                            player.playTrack(*player.currentPlaylist->getCurrentTrack(), *player.currentPlaylist);
+                            player.playTrack(*player.currentPlaylist->getCurrentTrack(), player.currentPlaylist);
                         }
                         else {
                             break;
@@ -73,7 +80,7 @@ int main (){
                 }
                 break;
             }
-            case 3: {
+            case 4: {
                 // Create a playlist
                 string name;
                 cout << "Enter a name for a new playlist: ";
@@ -82,7 +89,7 @@ int main (){
                 cout << "Playlist \" " << name <<  "\" was created successfully!" << endl;
                 break;
             }
-            case 4: {
+            case 5: {
                 // Delete a playlist
                 int number;
                 if (player.getNumberOfPlaylists() == 0) {
@@ -112,7 +119,7 @@ int main (){
                 }
                 break;
             }
-            case 5: {
+            case 6: {
                 // Rename a playlist
                 int number;
                 string name;
@@ -144,12 +151,12 @@ int main (){
                 }
                 break;
             }
-            case 6: {
+            case 7: {
                 // Display all playlists
                 player.displayAllPlaylists();
                 break;
             }
-            case 7: {
+            case 8: {
                 // Display all tracks in the playlist
                 int number;
                 if (player.getNumberOfPlaylists() == 0) {
@@ -173,7 +180,7 @@ int main (){
                 }
                 break;
             }
-            case 8: {
+            case 9: {
                 // Play tracks in the playlist
                 int number;
                 if (player.getNumberOfPlaylists() == 0) {
@@ -191,6 +198,8 @@ int main (){
                             player.currentPlaylist = player.playlists[number];
                             player.displayAllTracksInPlaylist(*player.playlists[number]);
                             if (player.currentPlaylist->getNumberOfTracksInPlaylist() > 0) {
+                                vector<Track*> playlistTracks = player.currentPlaylist->getPlaylistTracks();
+                                player.currentPlaylist->setCurrentTrack(playlistTracks[0]);
                                 cout << "a. Play once\n";
                                 cout << "b. Repeat album\n";
                                 cout << "c. Shuffle\n";
@@ -199,17 +208,18 @@ int main (){
                                 cin >> playChoice;
                                 switch (playChoice) {
                                     case 'a':
-                                        player.playTracksInThePlaylist(*player.currentPlaylist, false, false);
+                                        cout << player.currentPlaylist->getCurrentTrack()->getTitle() << endl;
+                                        player.playTracksInThePlaylist(player.currentPlaylist, false, false);
                                         break;
                                     case 'b':
-                                        player.playTracksInThePlaylist(*player.currentPlaylist, true, false);
+                                        player.playTracksInThePlaylist(player.currentPlaylist, true, false);
                                         break;
                                     case 'c':
-                                        player.playTracksInThePlaylist(*player.currentPlaylist, false, true);
+                                        player.playTracksInThePlaylist(player.currentPlaylist, false, true);
                                         break;
                                     default:
                                         cout << "Invalid choice! Playing once by default.\n";
-                                        player.playTracksInThePlaylist(*player.currentPlaylist, false, false);
+                                        player.playTracksInThePlaylist(player.currentPlaylist, false, false);
                                         break;
                                 }
                             }
@@ -220,7 +230,7 @@ int main (){
                 break;
             }
 
-            case 9: {
+            case 10: {
                 // Add a song to the playlist
                 int playlistNumber;
                 while (true) {
@@ -230,28 +240,22 @@ int main (){
                     if (playlistNumber < 0 || playlistNumber >= player.getNumberOfPlaylists()) {
                         cout << "Invalid playlist number. Try again!" << endl;
                     } else {
-                        vector<Track*> tracks = player.currentPlaylist->getTrackListFromCurrentFolder();
-                        // Temporary playlist to display songs in current folder
-                        Playlist* showSongs = new Playlist();
-                        showSongs->setPlaylistTracks(tracks);
-                        showSongs->setName("Current folder");
-                        player.displayAllTracksInPlaylist(*showSongs);
                         cout << "Choose a song to add: ";
-                        int trackNumber;
-                        cin >> trackNumber;
-                        if (trackNumber < 0 || trackNumber >= tracks.size()) {
-                            cout << "Invalid song number!" << endl;
-                        } else {
-                            player.playlists[playlistNumber]->addTrack(*tracks[trackNumber]);
-                            cout << "Song added to playlist successfully!" << endl;
-                            delete showSongs;
+                        Track* song = player.selectTrack();
+                        if (song != NULL){
+                            player.playlists[playlistNumber]->addTrack(*song);
+                            cout << "Song \"" << song->getTitle() << "\" added succesfully!" << endl;
+                            break;
+                        }
+                        else{
+                            cout << "Something went wrong. Could not add a song to the playlist." << endl;
                             break;
                         }
                     }
                 }
                 break;
             }
-            case 10: {
+            case 11: {
                 // Remove a song from the playlist
                 int playlistNumber;
                 while (true) {

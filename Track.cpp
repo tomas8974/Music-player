@@ -7,18 +7,25 @@
 
 using namespace std;
 
-Track::Track(string song) : title(song) {
+Track::Track(string title, string path) : title(title), path(path) {
 
 }
 
 string Track::getTitle() const{
 
-    return title;
+    return this->title;
+}
+
+string Track::getPath() const{
+    return this->path;
+}
+void Track::setPath(string path){
+    this->path = path;
 }
 
 void Track::loadTrack() {
     // Open the selected song
-    string command = "open \"" + title + ".mp3" + "\" type mpegvideo alias mp3";
+    string command = "open \"" + path + "\" type mpegvideo alias mp3";
     mciSendStringA(command.c_str(), NULL, 0, NULL);
 }
 

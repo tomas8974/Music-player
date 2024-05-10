@@ -3,13 +3,11 @@
 #pragma comment(lib, "winmm.lib")
 #include <iomanip>
 #include <vector>
-#include <filesystem>
 #include <algorithm>
 #include <random>
 #include "Playlist.h"
 
 using namespace std;
-namespace fs = filesystem;
 
 Playlist::Playlist() {
 
@@ -45,23 +43,6 @@ Track* Playlist::getCurrentTrack() const{
 
 int Playlist::getNumberOfTracksInPlaylist() const {
     return tracks.size();
-}
-
-// Gets song list in the current folder
-
-vector<Track*> Playlist::getTrackListFromCurrentFolder()
-{
-    vector<Track*> newTrackList;
-    string path = "./";
-    for (const auto &entry : fs::directory_iterator(path))
-    {
-        if (entry.path().extension() == ".mp3")
-        {
-            Track* newTrack = new Track(entry.path().stem().string());
-            newTrackList.push_back(newTrack);
-        }
-    }
-    return newTrackList;
 }
 
 // add a track to the playlist

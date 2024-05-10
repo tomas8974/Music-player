@@ -67,7 +67,7 @@ Player‘io valdymo srautas primena komandų modelio struktūrą. Vartotojo įve
 
 ### Klasių diagrama
 
-![1715149832748](image/Readme/1715149832748.png)
+![1715329641293](image/Readme/1715329641293.png)
 
 ### Darbo apimties ir laiko ataskaita bei pažymio pasiskirstymas
 

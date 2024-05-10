@@ -16,7 +16,6 @@ public:
     void setCurrentTrack(Track* currentTrack);
     Track* getCurrentTrack() const;
     int getNumberOfTracksInPlaylist() const;
-    std::vector<Track*> getTrackListFromCurrentFolder();
 
     void addTrack(Track track);
     void removeTrack(Track* track);
