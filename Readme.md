@@ -34,7 +34,7 @@ klausytis muzikos.
 | ----------------- | -------------------------------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Darbas            | Projekto struktūra,<br />activity diagramos | Proof of concept +<br />demonstracija YouTube,<br />sukurta GitLab saugykla | Sugalvotas komandos<br /> pavadinimas, projekto <br />aprašymas, use-case diagrama |
 | Laikas (iš viso) | 300 min.                                     | 45 min.                                                                     | 50 min.                                                                             |
-| Pažymys          | 1,2 balo                                     | 0,9 balo                                                                    | 0,9 balo                                                                            |
+| Pažymys          | 40%                                          | 30%                                                                         | 30%                                                                                 |
 
 ## Back-end (P2)
 
@@ -75,7 +75,7 @@ Player‘io valdymo srautas primena komandų modelio struktūrą. Vartotojo įve
 | ----------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Darbas            | Grojaraščių valdymas<br />(sukurti, ištrinti, pervadinti,<br /> paleisti grojaraštį),<br /> garso valdymas. | Dainų valdymas. | Grojaraščių valdymas<br />(pridėti, ištrinti dainą, kartoti, maišyti <br />grojaraštį, paleisti vieną kartą), <br />panaudoti / atpažinti projektavimo šablonai. |
 | Laikas (iš viso) | 300 min.                                                                                                          | 120 min.         | 150 min.                                                                                                                                                                       |
-| Pažymys          | 1,2 balo                                                                                                          | 0,9 balo         | 0,9 balo                                                                                                                                                                       |
+| Pažymys          | 40%                                                                                                               | 30%              | 30%                                                                                                                                                                            |
 
 ### Programos paleidimas
 
@@ -101,4 +101,60 @@ Arba perkurti:
 
 ```
 make rebuild
+```
+
+
+# Front-end (P3)
+
+## Projekto vizija
+
+Projekto metu, siekėme sukurti windows aplikaciją - muzikos grotuvą. Projektavome jog programą turės šiuos funkcionalumus:
+
+* Dainų valdymas - galimybė sustabdyti, pratęsti, pereiti prie kito ar ankstesnio muzikos takelio.
+* Grojaraščių valdymas - galimybė kurti, redaguoti ir personalizuoti nuosavus muzikos grojaraščius, prie jų pridėti, šalinti dainas, keisti jų eiliškumą, grojaraščius kartoti, ar maišyti juose esančių dainų eiliškumą.
+* Garso reguliavimas - tylinti, garsinti muzikos takelį.
+
+## Projekto rezultatas
+
+Galutinėje projekto versijoje mums pavyko įgyvendinti šiuos funkcionalumus:
+
+* Dainų valdymą
+* Grojaraščių valdymą (išskyrus galimybę turėti daugiau negu vieną grojaraštį)
+* Garso reguliavimą
+
+## Projekto vystymosi eiga ir sunkumai
+
+Projekto (P2) etapas vyko sklandžiai, buvo sukurta programos terminalinė versija įgyvendinanti visus užsibrėžtus programos funkcionalumus ir galimybes. Tačiau (P3) etapo metu, iškilo nemažai kėblumų, kuriant aplikacinę programą ir jos GUI, kadangi nei vienam komandos nariui anksčiau neteko susidurti su GUI kūrimų naudojantis C++ kalba. Prieš pradedant darbą teko skirti nemažai laiko papildomos informacijos ir šaltinių paieškai apie C++ GUI kūrimo priemones ir galimybes. Užduočiai įgyvendinti pasirinkome `wxWidgets` GUI biblioteka, kadangi `Qt` biblioteka, kurią iš pradžių tikėjomis pasinaudoti buvo mokama. Dirbant su `wxWidgets` išryškėjo jos ribotumas ir trūkumai - biblioteka reikalavo ir konkretaus IDE įsidiegimo `Microsoft Visual Studio`, dėl šios priežasties kodo ir darbo dalijimasis tarp komandos narių tapo sudėtingesnis, kadangi eksportuojant ir importuojant kolegų darbą, teko sugaišti nemažai laiko iš naujo susikonfiguruojant IDE tam jog ji veiktų su instaliuota `wxWidgets` biblioteką. Įveikus šiuos trūkdžius programą pavyko užbaigti ir pasiekti norimą rezultatą, tačiau manau jog ateityje dirbant su panašiu projektu ar GUI rinktumėmis kitą biblioteką.
+
+## Naudotos bibliotekos ir įrankiai
+
+* `wxWidgets` - Šios bibliotekos įrankiais buvo sukurtas GUI.
+* `windows.h` - Bilbioteka leidžia naudotis specifinėmis Windows funkcijomis, įgalinančiomis audio failų paleidimą, valdymą, pridėjimą ir t.t.
+* `winmm.lib` - Biblioteka reikalinga garso takelių paleidimui ir valdymui.
+* `filesystem` - Leidžia iteruoti per direktorijos failus pagal jų tipą, pasirinktiems failams atlikti tolimesnius veiksmus.
+* `locale` - Teikia priemones lokalių nustatymų ir simbolių klasifikavimo valdymui.
+* `codecvt` - Teikia įrankius simbolių koduotės konvertavimui tarp skirtingų simbolių rinkinių (pvz., iš wide string į string).
+* Kitos įprastos C++ bibliotekos ir įrankiai: `vector`, `conio.h`, `algorithm`, `random`.
+
+## Plėtimo galimybės
+
+* Pridėti galimybė vartotojui sukurti daugiau negu vieną grojaraštį ir tarp jų rinktis.
+* Pridėti galimybė vartotojui grojamą garso takelį sulėtinti, pagreitinti, atsukti ar persukti nuo nurodytos vietos.
+* Patobulinti GUI vizualumą, padaryti jį patrauklesnį vartotojui.
+
+## Darbo apimties ir laiko ataskaita bei pažymio pasiskirstymas
+
+|                   | Tomas                                                                                                                                                                                                      | Nojus                                                                      | Levon                                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Darbas            | GUI pradžia (frame),<br /> muzikos grotuvo mygtukai (play,<br />stop, next, previous), <br />padaryta, kad grotų visą grojaraštį<br />kai kurių backend <br />funkcijų pritaikymas veikimui su GUI. | Muzikos grotuvo mygtukai<br /> (repeat, shuffle),<br />garso reguliavimas. | Grojaraščių valdymo<br /> mygtukai (add, remove),<br />grojaraščio dainų <br />atvaizdavimas. |
+| Laikas (iš viso) | 540 min.                                                                                                                                                                                                   | 300 min.                                                                  | 360 min.                                                                                            |
+| Pažymys          | 33%                                                                                                                                                                                                        | 33%                                                                        | 33%                                                                                                 |
+
+
+## Programos paleidimas
+
+Galima paleisti jau sukompiliuotą programos versiją, tai yra atidaryti faila pavadinimu:
+
+```
+MusicPlayer.exe
 ```

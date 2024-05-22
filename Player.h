@@ -7,14 +7,17 @@
 #include "Track.h"
 #include "Playlist.h"
 
+
 class Player {
 public:
-    
+
     std::vector<Playlist*> playlists;
     Playlist* currentPlaylist;
     bool nextSongQueue;
     bool previousSongQueue;
     int volume;
+    bool isPlaying;
+    bool isPaused;
 
     Player();
 
@@ -22,12 +25,12 @@ public:
     std::vector<Track*> getTrackListFromCurrentFolder();
 
     // Track management
-    void playTrack(Track track, Playlist* playlist);
+    void playTrack(Track& track, Playlist* playlist);
     void pauseTrack();
+    void resumeTrack();
     void stopTrack();
     void playPreviousTrack(Playlist* playlist);
     void playNextTrack(Playlist* playlist);
-    void followTrackPosition(Track track, Playlist* playlist);
 
     // Playlist management
     int getNumberOfPlaylists() const;
@@ -39,6 +42,7 @@ public:
     void displayAllPlaylists();
 
     // Volume management
+    void setVolume(int volume);
     void increaseVolume();
     void decreaseVolume();
 };

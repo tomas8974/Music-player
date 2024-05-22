@@ -29,6 +29,15 @@ void Track::loadTrack() {
     mciSendStringA(command.c_str(), NULL, 0, NULL);
 }
 
+void Track::closeTrack() {
+    mciSendStringA("close mp3", NULL, 0, NULL);
+}
+
+void Track::reloadTrack() {
+    mciSendStringA("close mp3", NULL, 0, NULL);
+    loadTrack();
+}
+
 int Track::getTrackLength() {
     char length[128];
     mciSendStringA("status mp3 length", length, sizeof(length), NULL);

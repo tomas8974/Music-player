@@ -1,24 +1,22 @@
-#ifndef TRACK_H
-#define TRACK_H
+#pragma once
 
 #include <string>
 #include <windows.h>
 
 class Track {
 public:
+    Track(const std::string title, const std::string path);
 
-    Track(std::string title, std::string path);
-
+    void loadTrack();
     std::string getTitle() const;
     std::string getPath() const;
-    void setPath(std::string path);
-    void loadTrack();
+    void setPath(const std::string path);
     int getTrackLength();
     int getTrackPosition();
+    void reloadTrack();
+    void closeTrack();
 
 private:
     std::string title;
     std::string path;
 };
-
-#endif // TRACK_H

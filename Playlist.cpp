@@ -14,58 +14,75 @@ Playlist::Playlist() {
 }
 
 Playlist::~Playlist() {
-
+    // Clean up dynamically allocated Tracks
+    for (Track* track : playlistTracks) {
+        delete track;
+    }
+    playlistTracks.clear();
 }
 
-void Playlist::setName(string name){
+void Playlist::setName(string name) {
     this->name = name;
 }
 
-string Playlist::getName() const{
+string Playlist::getName() const {
     return name;
 }
 
-void Playlist::setTrackNumber(int trackNumber){
+void Playlist::setTrackNumber(int trackNumber) {
     this->trackNumber = trackNumber;
 }
 
-int Playlist::getTrackNumber() const{
+int Playlist::getTrackNumber() const {
     return this->trackNumber;
 }
 
-void Playlist::setCurrentTrack(Track* currentTrack){
+void Playlist::setCurrentTrack(Track* currentTrack) {
     this->currentTrack = currentTrack;
 }
 
-Track* Playlist::getCurrentTrack() const{
+Track* Playlist::getCurrentTrack() const {
     return this->currentTrack;
 }
 
 int Playlist::getNumberOfTracksInPlaylist() const {
-    return tracks.size();
+    return playlistTracks.size();
 }
 
-// add a track to the playlist
+// Add a track to the playlist
 void Playlist::addTrack(Track track) {
-    tracks.push_back(new Track(track));
+    playlistTracks.push_back(new Track(track));
 }
 
-// remove a track from the playlist
+void Playlist::removeTrack(int index) {
+    // Check if index is valid
+    if (index < 0 || index >= playlistTracks.size()) {
+        return;
+    }
+
+    // Remove the track at the given index
+    playlistTracks.erase(playlistTracks.begin() + index);
+}
+
+// Remove a track from the playlist
 void Playlist::removeTrack(Track* track) {
-    auto it = std::find(tracks.begin(), tracks.end(), track);
-    if (it != tracks.end()) {
-        tracks.erase(it);
+    auto it = std::find(playlistTracks.begin(), playlistTracks.end(), track);
+    if (it != playlistTracks.end()) {
+        delete* it;
+        playlistTracks.erase(it);
     }
 }
 
-// Shuffle the playlist
+// Shuffle the playlist and set currentTrack randomly
 void Playlist::shufflePlaylist() {
-    std::random_shuffle(tracks.begin(), tracks.end());
+    auto rng = std::default_random_engine{};
+    std::shuffle(playlistTracks.begin(), playlistTracks.end(), rng);
 }
 
-vector<Track*> Playlist::getPlaylistTracks(){
-    return tracks;
+vector<Track*> Playlist::getPlaylistTracks() {
+    return playlistTracks;
 }
-void Playlist::setPlaylistTracks(vector<Track*> tracks){
-    this->tracks = tracks;
+
+void Playlist::setPlaylistTracks(vector<Track*> tracks) {
+    this->playlistTracks = tracks;
 }

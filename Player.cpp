@@ -13,6 +13,15 @@
 #include "Playlist.h"
 #include "Player.h"
 
+// Converts wstring to string
+std::string wideToMultiByte(const std::wstring& wide) {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wide.data(), (int)wide.size(), NULL, 0, NULL, NULL);
+    std::string multiByte(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wide.data(), (int)wide.size(), &multiByte[0], size_needed, NULL, NULL);
+    return multiByte;
+}
+
+
 using namespace std;
 namespace fs = filesystem;
 
@@ -25,9 +34,13 @@ Player::Player() {
     currentPlaylist = playlists[0];
     nextSongQueue = false;
     previousSongQueue = false;
+    isPlaying = false;
+    isPaused = false;
+    currentPlaylist->repeat = false;
+
 }
 
-Track* Player::selectTrack(){
+Track* Player::selectTrack() {
     OPENFILENAMEW ofn;
     wchar_t fileName[MAX_PATH] = L"";
     ZeroMemory(&ofn, sizeof(ofn));
@@ -51,15 +64,15 @@ Track* Player::selectTrack(){
         wcout << L"You chose the file \"" << filenameOnly << L"\"\n";
 
         // converts wstring to string
-        wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
-        string path = converter.to_bytes(fullPath);
-        string title = converter.to_bytes(filenameOnly); 
+        string path = wideToMultiByte(fullPath);
+        string title = wideToMultiByte(filenameOnly);
 
         // creates new track and returns
         Track* newTrack = new Track(title, path);
         return newTrack;
 
-    } else {
+    }
+    else {
         cout << "You cancelled.\n";
         return NULL;
     }
@@ -69,7 +82,7 @@ vector<Track*> Player::getTrackListFromCurrentFolder()
 {
     vector<Track*> newTrackList;
     string path = "./";
-    for (const auto &entry : fs::directory_iterator(path))
+    for (const auto& entry : fs::directory_iterator(path))
     {
         if (entry.path().extension() == ".mp3")
         {
@@ -80,33 +93,34 @@ vector<Track*> Player::getTrackListFromCurrentFolder()
     return newTrackList;
 }
 
-void Player::playTrack(Track track, Playlist* playlist) {
+
+void Player::playTrack(Track& track, Playlist* playlist) {
+    isPlaying = true;
     track.loadTrack();
     string command = "setaudio mp3 volume to " + to_string(volume);
     mciSendStringA(command.c_str(), NULL, 0, NULL);
     mciSendStringA("play mp3", NULL, 0, NULL);
-    cout << "Now playing: " << track.getTitle() << endl;
-    followTrackPosition(track, playlist);
-    stopTrack();
+
 }
 
 void Player::pauseTrack() {
+    isPaused = true;
     mciSendStringA("pause mp3", NULL, 0, NULL);
-    cout << "\nMusic paused. Press P again to resume." << endl;
-    while (_getch() != 'p' && _getch() != 'P') {
-        // Wait for 'P' key to resume
-    }
+}
+
+void Player::resumeTrack() {
+    isPaused = false;
     mciSendStringA("resume mp3", NULL, 0, NULL);
-    cout << "\nMusic resumed." << endl;
 }
 
 void Player::stopTrack() {
+    isPlaying = false;
     mciSendStringA("stop mp3", NULL, 0, NULL);
     mciSendStringA("close mp3", NULL, 0, NULL);
-    if (nextSongQueue == true){
+    if (nextSongQueue == true) {
         previousSongQueue = false;
     }
-    else if (previousSongQueue == true){
+    else if (previousSongQueue == true) {
         nextSongQueue = false;
     }
     cout << "\rMusic stopped\n" << flush;
@@ -116,13 +130,24 @@ void Player::playNextTrack(Playlist* playlist) {
     cout << "\nPlaying next song from the library." << endl;
     stopTrack();
     int trackNumber = playlist->getTrackNumber();
-    trackNumber = (trackNumber + 1) % playlist->getNumberOfTracksInPlaylist(); // Update currentSong to next song index
+    if (trackNumber == playlist->getNumberOfTracksInPlaylist() - 1) {
+        if (playlist->repeat) {
+            trackNumber = 0;
+        }
+        else {
+            playlist->setCurrentTrack(NULL);
+			return;
+		}
+	}
+    else {
+		trackNumber++;
+	}
     playlist->setTrackNumber(trackNumber);
     vector<Track*> tracks = playlist->getPlaylistTracks();
     playlist->setCurrentTrack(tracks[trackNumber]);
     nextSongQueue = true;
     previousSongQueue = false;
-    
+
     return;
 }
 
@@ -130,7 +155,12 @@ void Player::playPreviousTrack(Playlist* playlist) {
     cout << "\nPlaying previous song from the library." << endl;
     stopTrack();
     int trackNumber = playlist->getTrackNumber();
-    trackNumber = (trackNumber - 1 + playlist->getNumberOfTracksInPlaylist()) % playlist->getNumberOfTracksInPlaylist(); // Update currentSong to previous song index
+    if (trackNumber == 0) {
+        trackNumber = 0;
+	}
+    else {
+        trackNumber = (trackNumber - 1 + playlist->getNumberOfTracksInPlaylist()) % playlist->getNumberOfTracksInPlaylist(); // Update currentSong to previous song index
+    }
     playlist->setTrackNumber(trackNumber);
     vector<Track*> tracks = playlist->getPlaylistTracks();
     playlist->setCurrentTrack(tracks[trackNumber]);
@@ -140,79 +170,9 @@ void Player::playPreviousTrack(Playlist* playlist) {
     return;
 }
 
-void Player::followTrackPosition(Track track, Playlist* playlist) {
-
-    int minutes = 0;
-    int seconds = 0;
-    int oldSeconds = -1;
-
-    // Gets track length
-    int durationMin = track.getTrackLength() / 60;
-    int durationSec = track.getTrackLength() % 60;
-
-    if (playlist != NULL){
-        cout << "Press P to pause or unpause music" << endl;
-        cout << "Press X key to exit the player..." << endl;
-        cout << "Press > to play new song" << endl;
-        cout << "Press < to play previous song" << endl;
-        cout << "Press Q to go to menu" << endl;
-        cout << "Press + to increase volume" << endl;
-        cout << "Press - to decrease volume" << endl;
-    }
-    else{
-        cout << "Press P to pause or unpause music" << endl;
-        cout << "Press X key to exit the player..." << endl;
-        cout << "Press Q to go to menu" << endl;
-        cout << "Press + to increase volume" << endl;
-        cout << "Press - to decrease volume" << endl;
-    }
-    
-    cout <<"----------------------------------------" << endl;
-    while ((durationMin * 60 + durationSec) > (minutes * 60 + seconds)) {
-
-        //  Pause/resume, move to prev/next track, exit program or go to menu
-        //  change volume
-        if (_kbhit()) {
-            char key = _getch();
-            if (key == 'p' || key == 'P') {
-                pauseTrack();
-            }
-            else if(key == 'x' || key == 'X') {
-                exit(0);
-            }
-            else if(key == '>' && playlist != NULL) {
-                playNextTrack(playlist);
-                return;
-            }
-            else if(key == '<' && playlist != NULL) {
-                playPreviousTrack(playlist);
-                return;
-            }
-            else if (key == 'q' || key == 'Q'){
-                return;
-            }
-            else if (key == '+'){
-                increaseVolume();
-            }
-            else if (key == '-'){
-                decreaseVolume();
-            }
-        }
-
-        seconds = track.getTrackPosition() % 60; // Gets track position in seconds
-        minutes = track.getTrackPosition() / 60; // Gets track position in minutes
-        if (seconds != oldSeconds) {
-            cout << "\r" << setw(2) << setfill('0') << minutes << ":" << setw(2) << setfill('0') << seconds <<
-                " / " << setw(2) << setfill('0') << durationMin << ":" << setw(2) << setfill('0') << durationSec <<
-                "     "<< flush;
-            oldSeconds = seconds;
-        }
-    }
-}
-
 // Playlist management
 
-int Player::getNumberOfPlaylists() const{
+int Player::getNumberOfPlaylists() const {
     return playlists.size();
 }
 
@@ -225,7 +185,7 @@ void Player::createPlaylist(string name) {
 bool Player::deletePlaylist(string name) {
     for (auto it = playlists.begin(); it != playlists.end(); ++it) {
         if ((*it)->getName() == name) {
-            delete *it;
+            delete* it;
             playlists.erase(it);
             return true;
         }
@@ -243,14 +203,14 @@ bool Player::renamePlaylist(string oldName, string newName) {
     return false;
 }
 
-void Player::displayAllTracksInPlaylist(Playlist playlist){
-    if (playlist.getNumberOfTracksInPlaylist() == 0){
+void Player::displayAllTracksInPlaylist(Playlist playlist) {
+    if (playlist.getNumberOfTracksInPlaylist() == 0) {
         cout << "There are no tracks in the playlist." << endl;
     }
     else {
         cout << "Tracks in \"" << playlist.getName() << "\"." << endl;
         vector<Track*> playlistTracks = playlist.getPlaylistTracks();
-        for (int i = 0; i < playlist.getNumberOfTracksInPlaylist(); i++){
+        for (int i = 0; i < playlist.getNumberOfTracksInPlaylist(); i++) {
             cout << i << ". " << playlistTracks[i]->getTitle() << endl;
         }
     }
@@ -274,7 +234,7 @@ void Player::playTracksInThePlaylist(Playlist* playlist, bool repeat, bool shuff
             else {
                 if (playlist->getNumberOfTracksInPlaylist() == (playlist->getTrackNumber() + 1)) {
                     break;
-                }   
+                }
                 else {
                     playNextTrack(playlist);
                 }
@@ -297,14 +257,14 @@ void Player::playTracksInThePlaylist(Playlist* playlist, bool repeat, bool shuff
     } while (repeat);
 }
 
-void Player::displayAllPlaylists(){
+void Player::displayAllPlaylists() {
     int size = playlists.size();
-    if (size == 0){
+    if (size == 0) {
         cout << "There are no created playlists." << endl;
     }
-    else{
+    else {
         cout << "Playlist list." << endl;
-        for (int i = 0; i < size; i++){
+        for (int i = 0; i < size; i++) {
             cout << i << ". " << playlists[i]->getName() << endl;
         }
     }
@@ -313,22 +273,30 @@ void Player::displayAllPlaylists(){
 
 // Volume management
 
-void Player::increaseVolume(){
-    volume += 20;
-    if (volume >= 1000){
-        volume = 1000;
-    }
-    string command = "setaudio mp3 volume to " + to_string(volume);
-    mciSendStringA(command.c_str(), NULL, 0, NULL); 
-    cout << "\rVolume: " << volume/10 << "/100" << flush;
+void Player::setVolume(int volume) {
+    this->volume = volume * 10;
+    string command = "setaudio mp3 volume to " + to_string(this->volume);
+    mciSendStringA(command.c_str(), NULL, 0, NULL);
+    cout << "\rVolume: " << volume << "/100" << flush;
 }
 
-void Player::decreaseVolume(){
-    volume -= 20;
-    if (volume <= 0){
+void Player::increaseVolume() {
+    volume += 2;
+    if (volume >= 100) {
+        volume = 100;
+    }
+    string command = "setaudio mp3 volume to " + to_string(volume * 10);
+    mciSendStringA(command.c_str(), NULL, 0, NULL);
+    cout << "\rVolume: " << volume << "/100" << flush;
+}
+
+void Player::decreaseVolume() {
+    volume -= 2;
+    if (volume <= 0) {
         volume = 0;
     }
-    string command = "setaudio mp3 volume to " + to_string(volume);
+    string command = "setaudio mp3 volume to " + to_string(volume * 10);
     mciSendStringA(command.c_str(), NULL, 0, NULL);
-    cout << "\rVolume: " << volume/10 << "/100" << flush;
+    cout << "\rVolume: " << volume / 10 << "/100" << flush;
 }
+
