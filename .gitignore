@@ -1,0 +1,8 @@
+**/x64/
+**/Debug/
+**/Release/
+**/*.ilk
+**/*.pdb
+**/*.exe
+**/*.obj
+**/*.idb
