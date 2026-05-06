@@ -4,7 +4,7 @@
 
 **Team name:** Špotify
 
-This project was part of the C++ course in Vilnius University.
+This project was part of the C++ course in Vilnius University in 2024 Spring semester.
 
 [Old Readme (in Lithuanian)](Readme.lt.md)
 
