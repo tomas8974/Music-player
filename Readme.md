@@ -20,6 +20,8 @@ A desktop music player application built in C++ with a graphical user interface.
 
 [Proof of concept (YouTube)](https://www.youtube.com/watch?v=BZN2oEVn90A)
 
+[Demo (Youtube)](https://youtu.be/enXnZIrW7xQ)
+
 ---
 
 ## Technologies & Libraries
